@@ -30,15 +30,14 @@ RUN rzup install
 RUN git clone https://github.com/risc0/risc0.git /risc0
 WORKDIR /risc0
 
-# Set NVCC flags for RTX 5090 support (sm_120)
-ENV NVCC_APPEND_FLAGS="-gencode=arch=compute_120,code=sm_120"
+# Set NVCC_APPEND_FLAGS to include sm_120 for RTX 5090 support
+ENV NVCC_APPEND_FLAGS="-arch=sm_120"
 
-# Build the bento agent
-RUN cargo build --release -p bento-agent
+# Build RISC Zero with CUDA support
+RUN cargo build --release
 
-# Create app directory and copy the agent
-RUN mkdir -p /app
-RUN cp target/release/bento-agent /app/agent
-
+# Set working directory for agent
 WORKDIR /app
-ENTRYPOINT ["/app/agent"]
+
+# Copy agent binary (will be mounted from host)
+CMD ["/risc0/target/release/risc0-zkvm"]
